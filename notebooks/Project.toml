@@ -1,5 +1,11 @@
 [deps]
+ActiveContours = "2a096b4a-7755-4b95-b585-0f276b139faf"
+CairoMakie = "13f3f980-e62b-5c42-98c6-ff1f3baf88f0"
 DICOM = "a26e6606-dd52-5f6a-a97f-4f611373d757"
+DICOMUtils = "d427e4c1-f2bb-45be-a498-7217d8b6de98"
+Images = "916415d5-f1e6-5110-898d-aaa5f9f070e0"
 OrthancTools = "d6a53a69-57dd-4bf1-83cc-71c4a7042fcf"
 PlutoUI = "7f904dfe-b85e-4ff6-b463-dae2292396a8"
 Revise = "295af30f-e4ad-537b-8983-00126c2a3abe"
+StatsBase = "2913bbd2-ae8a-5f71-8c99-4fb6c76f3a91"
+Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
