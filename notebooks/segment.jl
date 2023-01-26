@@ -38,26 +38,19 @@ md"""
 ip_address = "128.200.49.26"
 
 # ╔═╡ 62c3ce5f-2558-48e3-b4e1-fe11d300304f
-# ╠═╡ disabled = true
-#=╠═╡
 studies_dict = get_all_studies(ip_address)
-  ╠═╡ =#
 
 # ╔═╡ 15a3fe24-319e-43f8-8ff9-0203ea9b4375
 accession_number = "2475"
 
 # ╔═╡ 12e74893-e3b2-4f5c-8e3f-e51a7e563a4e
-#=╠═╡
 series_dict = get_all_series(studies_dict, accession_number, ip_address)
-  ╠═╡ =#
 
 # ╔═╡ 78f654ed-1f1f-4141-95f3-1b03bb7bf051
-series_num = "4"
+series_num = "2"
 
 # ╔═╡ 59c1bd7f-62db-4736-bf11-fe071aee81d0
-#=╠═╡
 instances_dict = get_all_instances(series_dict, series_num, ip_address)
-  ╠═╡ =#
 
 # ╔═╡ b1f98e1a-b405-4a72-bba9-17165ac00eaa
 md"""
@@ -71,9 +64,7 @@ instance_number = 1
 output_dir = "/Users/daleblack/Documents/dcm_dir"
 
 # ╔═╡ dc4ea23d-08ce-4607-8bcc-96a4358ba2b6
-#=╠═╡
 download_instances(instances_dict, instance_number, output_dir, ip_address)
-  ╠═╡ =#
 
 # ╔═╡ a7771fa7-d4ea-4c41-9ba2-e03f62fcc2ef
 md"""
@@ -98,7 +89,7 @@ md"""
 """
 
 # ╔═╡ 57b1d4a7-5359-496a-9c83-319476d529ec
-@bind a PlutoUI.Slider(axes(dcm_arr, 3), default=130, show_value=true)
+@bind a PlutoUI.Slider(axes(dcm_arr, 3), default=10, show_value=true)
 
 # ╔═╡ bdc601d2-7f60-4dbd-af8b-1bdba23e9a61
 let
@@ -157,29 +148,28 @@ end
 
 # ╔═╡ 6234f1e4-1799-419b-b345-25803e948316
 function create_circle_mask(img, centroids, radius)
-    width, height = size(img)
-    # initialize level set function with all zeros
-    level_set = zeros(size(img))
+    # initialize mask with all zeros
+    mask = zeros(size(img))
 
-    # define the center and radius of the initial curve
-    center_x, center_y = centroids[1], centroids[2]
+    # define the center of the circle
+    x0, y0 = centroids[1], centroids[2]
 
-    # set all pixels inside the initial curve to -1 and all pixels outside the curve to 1
-    for x in 1:width, y in 1:height
-        if ((x - center_x)^2 + (y - center_y)^2) <= radius^2
-            level_set[x, y] = 1
+    # set all pixels inside the circle to 1 and all pixels outside the circle to 0
+    for x in axes(img, 1), y in axes(img, 2)
+        if ((x - x0)^2 + (y - y0)^2) <= radius^2
+            mask[x, y] = 1
         else
-            level_set[x, y] = 0
+            mask[x, y] = 0
         end
     end
-    Bool.(level_set)
+    return Bool.(mask)
 end
 
 # ╔═╡ 6df5166e-0056-49d6-aaa3-90134ddead90
 bool_arr, centroids = segment_heart(dcm_arr, (40, 70));
 
 # ╔═╡ 1b06d20a-7781-4f64-b6c1-1a28ee61463d
-dcm_slice = dcm_arr[:, :, 10];
+dcm_slice = dcm_arr[:, :, centroids[3]];
 
 # ╔═╡ 2f479f9f-5e97-4fa2-98b0-ee6ffe225a88
 circle_mask = create_circle_mask(dcm_slice, centroids[1:2], 130);
@@ -256,7 +246,11 @@ begin
 	while true
 		segmentation_eroded = erode(segmentation_eroded)
 		cc = label_components(segmentation_eroded)
-		if length(unique(cc)) <= 2
+		if length(unique(cc)) == 2
+			break
+		end
+		if (length(unique(cc)) <= 1)
+			@warn "Erosion failed; only background is left"
 			break
 		end
 	end
@@ -265,9 +259,6 @@ begin
 	
 	centroids2 = component_centroids(segmentation_eroded_lbl)[2]
 end
-
-# ╔═╡ ddd3a997-ebe2-42fc-bb7a-c594fabf770f
-component_centroids(segmentation_eroded_lbl)[2]
 
 # ╔═╡ 62c2f9ae-1b58-43ba-9320-318b7b020c9a
 begin
@@ -294,6 +285,11 @@ let
 
 	f
 end
+
+# ╔═╡ dec18cd0-720c-4a81-9eaf-8f1e254e414f
+md"""
+# Mask Heart Function
+"""
 
 # ╔═╡ Cell order:
 # ╠═0f1ab7a0-98ec-11ed-0e70-356525ed2545
@@ -331,8 +327,8 @@ end
 # ╠═c23066e3-a24b-4cf0-9c1c-116d7472ce0b
 # ╟─4ffb82a7-aa38-4e3d-83d6-9ecc3973b506
 # ╠═3bb934e6-4e09-4dee-87f7-b7e1df749fb6
-# ╠═ddd3a997-ebe2-42fc-bb7a-c594fabf770f
 # ╠═62c2f9ae-1b58-43ba-9320-318b7b020c9a
 # ╟─d6ec0afe-afbd-4667-b179-466439864569
 # ╟─673afc8d-21c1-4592-874c-212c3d704952
 # ╟─00925c19-35e1-4e49-bcd4-2ef0b671a4ee
+# ╟─dec18cd0-720c-4a81-9eaf-8f1e254e414f
