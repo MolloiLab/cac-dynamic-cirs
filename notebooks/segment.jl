@@ -29,20 +29,56 @@ md"""
 # Load DICOMs
 """
 
+# ╔═╡ 03323a12-99dc-4d49-bf32-6bfd5f9ef102
+md"""
+## Locate on Orthanc
+"""
+
 # ╔═╡ 7046e8fc-dd3a-433c-8ef2-abb3518b3ce9
 ip_address = "128.200.49.26"
+
+# ╔═╡ 62c3ce5f-2558-48e3-b4e1-fe11d300304f
+# ╠═╡ disabled = true
+#=╠═╡
+studies_dict = get_all_studies(ip_address)
+  ╠═╡ =#
 
 # ╔═╡ 15a3fe24-319e-43f8-8ff9-0203ea9b4375
 accession_number = "2475"
 
+# ╔═╡ 12e74893-e3b2-4f5c-8e3f-e51a7e563a4e
+#=╠═╡
+series_dict = get_all_series(studies_dict, accession_number, ip_address)
+  ╠═╡ =#
+
 # ╔═╡ 78f654ed-1f1f-4141-95f3-1b03bb7bf051
 series_num = "4"
+
+# ╔═╡ 59c1bd7f-62db-4736-bf11-fe071aee81d0
+#=╠═╡
+instances_dict = get_all_instances(series_dict, series_num, ip_address)
+  ╠═╡ =#
+
+# ╔═╡ b1f98e1a-b405-4a72-bba9-17165ac00eaa
+md"""
+## Download from Orthanc
+"""
 
 # ╔═╡ 18eba487-9d8a-4a56-829f-0146692e4ab4
 instance_number = 1
 
 # ╔═╡ a2fb46b1-a881-4f14-94d6-2729177f6d37
 output_dir = "/Users/daleblack/Documents/dcm_dir"
+
+# ╔═╡ dc4ea23d-08ce-4607-8bcc-96a4358ba2b6
+#=╠═╡
+download_instances(instances_dict, instance_number, output_dir, ip_address)
+  ╠═╡ =#
+
+# ╔═╡ a7771fa7-d4ea-4c41-9ba2-e03f62fcc2ef
+md"""
+## Load DICOMs
+"""
 
 # ╔═╡ fbc69139-9839-4ef9-bbff-b6d18bc87b72
 dcms = dcmdir_parse(output_dir)
@@ -51,10 +87,10 @@ dcms = dcmdir_parse(output_dir)
 dcm_arr = load_dcm_array(dcms);
 
 # ╔═╡ fe16aad5-65f1-4a0a-ad0b-9ab4eb55e1bb
-header = dcms[1].meta
+header = dcms[1].meta;
 
 # ╔═╡ fff1e879-3f96-423d-866b-aa3458a8989e
-get_pixel_size(header)
+pixel_size = get_pixel_size(header)
 
 # ╔═╡ e0766843-59ea-4a83-8de4-c5ce6952f246
 md"""
@@ -240,9 +276,6 @@ begin
 	idxs = getindex.(idxs, [1 2])
 end;
 
-# ╔═╡ 70c98c2b-c281-4a00-8dc1-a2ff330bcb74
-heatmap(segmentation_eroded)
-
 # ╔═╡ d6ec0afe-afbd-4667-b179-466439864569
 md"""
 ## Visualize
@@ -266,11 +299,18 @@ end
 # ╠═0f1ab7a0-98ec-11ed-0e70-356525ed2545
 # ╠═36c45072-0063-4c2d-ab47-201103f62599
 # ╟─8070c932-5d17-4e46-bd2f-566693774599
+# ╟─03323a12-99dc-4d49-bf32-6bfd5f9ef102
 # ╠═7046e8fc-dd3a-433c-8ef2-abb3518b3ce9
+# ╠═62c3ce5f-2558-48e3-b4e1-fe11d300304f
 # ╠═15a3fe24-319e-43f8-8ff9-0203ea9b4375
+# ╠═12e74893-e3b2-4f5c-8e3f-e51a7e563a4e
 # ╠═78f654ed-1f1f-4141-95f3-1b03bb7bf051
+# ╠═59c1bd7f-62db-4736-bf11-fe071aee81d0
+# ╟─b1f98e1a-b405-4a72-bba9-17165ac00eaa
 # ╠═18eba487-9d8a-4a56-829f-0146692e4ab4
 # ╠═a2fb46b1-a881-4f14-94d6-2729177f6d37
+# ╠═dc4ea23d-08ce-4607-8bcc-96a4358ba2b6
+# ╟─a7771fa7-d4ea-4c41-9ba2-e03f62fcc2ef
 # ╠═fbc69139-9839-4ef9-bbff-b6d18bc87b72
 # ╠═7800826f-a9a6-491f-bbe2-cd422a43f6a9
 # ╠═fe16aad5-65f1-4a0a-ad0b-9ab4eb55e1bb
@@ -293,7 +333,6 @@ end
 # ╠═3bb934e6-4e09-4dee-87f7-b7e1df749fb6
 # ╠═ddd3a997-ebe2-42fc-bb7a-c594fabf770f
 # ╠═62c2f9ae-1b58-43ba-9320-318b7b020c9a
-# ╠═70c98c2b-c281-4a00-8dc1-a2ff330bcb74
 # ╟─d6ec0afe-afbd-4667-b179-466439864569
 # ╟─673afc8d-21c1-4592-874c-212c3d704952
 # ╟─00925c19-35e1-4e49-bcd4-2ef0b671a4ee
